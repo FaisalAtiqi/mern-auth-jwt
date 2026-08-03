@@ -5,7 +5,7 @@ import {
   REFRESH_TOKEN_LIFETIME_DAYS,
 } from "./jwt.js";
 
-export const REFRESH_PATH = "/auth/refresh";
+export const REFRESH_PATH = "/api/auth/refresh";
 
 const isDev = NODE_ENV === "development";
 const defaults: CookieOptions = {

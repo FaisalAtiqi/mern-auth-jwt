@@ -1,8 +1,8 @@
 import "dotenv/config";
+import connectToDatabase from "./configs/db.js";
 import mongoose from "mongoose";
 import app from "./app.js";
 import { NODE_ENV, PORT } from "./constants/env.js";
-import connectToDatabase from "./configs/db.js";
 
 /**
  * Initializes and starts the application server.
@@ -20,7 +20,7 @@ async function startServer() {
     const server = app.listen(PORT, host, () => {
       const displayHost = host === "0.0.0.0" ? "localhost" : host;
       console.log(
-        `Server running at http://${displayHost}:${PORT} [${NODE_ENV}]`
+        `Server running at http://${displayHost}:${PORT} [${NODE_ENV}]`,
       );
     });
 

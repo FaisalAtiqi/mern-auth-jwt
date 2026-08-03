@@ -20,19 +20,20 @@ import { HTTP_STATUS } from "../constants/http.js";
 import { verifyToken } from "../utils/jwt.js";
 import appAssert from "../utils/appAssert.js";
 import SessionModel from "../models/session.model.js";
+import { extractClientMetadata } from "../lib/metadata/client-metadata.js";
 
 /**
  * Handles user registration and initializes a secure session.
  */
 export async function registerHandler(req: Request, res: Response) {
   // Validate input and capture client device metadata
-  const request = registerSchema.parse({
-    ...req.body,
-    userAgent: req.headers["user-agent"],
-  });
+  const credentials = registerSchema.parse(req.body);
+  const metadata = extractClientMetadata(req);
 
-  const { user, accessToken, refreshToken, url } =
-    await createUserAccount(request);
+  const { user, accessToken, refreshToken, url } = await createUserAccount({
+    credentials,
+    metadata,
+  });
 
   // Set HTTP-only cookies and return the created user profile
   return setAuthCookies({ res, accessToken, refreshToken })
@@ -76,12 +77,13 @@ export async function requestEmailVerificationHandler(
  * Verifies credentials and establishes a new authenticated session.
  */
 export async function loginHandler(req: Request, res: Response) {
-  const request = loginSchema.parse({
-    ...req.body,
-    userAgent: req.headers["user-agent"],
-  });
+  const credentials = loginSchema.parse(req.body);
+  const metadata = extractClientMetadata(req);
 
-  const { accessToken, refreshToken } = await loginUser(request);
+  const { accessToken, refreshToken } = await loginUser({
+    credentials,
+    metadata,
+  });
 
   return setAuthCookies({ res, accessToken, refreshToken })
     .status(HTTP_STATUS.OK)

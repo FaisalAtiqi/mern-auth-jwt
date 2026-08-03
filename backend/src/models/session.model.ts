@@ -1,14 +1,49 @@
-import mongoose, { Schema, Model } from "mongoose";
+import mongoose, { Schema, model, HydratedDocument } from "mongoose";
 import { thirtyDaysFromNow } from "../utils/date.js";
+import {
+  browserSchema,
+  deviceSchema,
+  locationSchema,
+  osSchema,
+} from "../schema/metadata.schema.js";
 
-interface Session {
+export interface Session {
   userId: mongoose.Types.ObjectId;
   userAgent?: string;
+  ipAddress?: string;
+  location?: {
+    country?: string;
+    region?: string;
+    city?: string;
+    timezone?: string;
+  };
+  browser?: {
+    name?: string;
+    version?: string;
+  };
+  os?: {
+    name?: string;
+    version?: string;
+  };
+  device?: {
+    deviceType?: string;
+    vendor?: string;
+    model?: string;
+  };
+  cpu?: string;
+  lastActive: Date;
   createdAt: Date;
   expiresAt: Date;
 }
 
-interface SessionModel extends Model<Session> {}
+export type SessionDocument = HydratedDocument<Session>;
+
+interface SessionModel extends mongoose.Model<Session> {
+  createSession(params: {
+    userId: string;
+    metadata: Partial<Session>;
+  }): Promise<SessionDocument>;
+}
 
 const sessionSchema = new Schema<Session, SessionModel>(
   {
@@ -19,32 +54,39 @@ const sessionSchema = new Schema<Session, SessionModel>(
       immutable: true,
       index: true,
     },
-    userAgent: {
-      type: String,
+
+    userAgent: String,
+    ipAddress: String,
+
+    location: locationSchema,
+    browser: browserSchema,
+    os: osSchema,
+    device: deviceSchema,
+    cpu: String,
+
+    lastActive: {
+      type: Date,
+      default: Date.now,
     },
+
     createdAt: {
       type: Date,
-      required: true,
       default: Date.now,
       immutable: true,
     },
+
     expiresAt: {
       type: Date,
-      required: true,
       default: thirtyDaysFromNow,
     },
   },
   {
     timestamps: false,
-  }
+  },
 );
 
-// Delete the document at the exact time in 'expiresAt'
 sessionSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-const SessionModel = mongoose.model<Session, SessionModel>(
-  "Session",
-  sessionSchema
-);
+const SessionModel = model<Session, SessionModel>("Session", sessionSchema);
 
 export default SessionModel;

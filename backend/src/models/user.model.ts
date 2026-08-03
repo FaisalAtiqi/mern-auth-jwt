@@ -1,12 +1,16 @@
-import mongoose, { Model, Schema } from "mongoose";
+import mongoose, { HydratedDocument, Model, Schema } from "mongoose";
 import { compareValue, hashValue } from "../utils/bcrypt.js";
+import { signupMetadataSchema } from "../schema/metadata.schema.js";
+import { SignupMetadata } from "../../../shared/types/metadata.js";
 
 export interface User {
   email: string;
   password: string;
-  userAgent?: string;
-  verified: boolean;
+  isVerified: boolean;
+  signupMetadata?: SignupMetadata;
 }
+
+export type UserDocument = HydratedDocument<User, UserMethods>;
 
 // Define instance methods that each User document will have
 interface UserMethods {
@@ -26,41 +30,36 @@ const userSchema = new Schema<User, UserModel, UserMethods>(
       trim: true,
       index: true,
     },
+
     password: {
       type: String,
       required: true,
       select: false, // exclude by default when querying (security measure)
     },
-    userAgent: String,
-    verified: { type: Boolean, default: false },
+
+    isVerified: { type: Boolean, default: false },
+
+    signupMetadata: { type: signupMetadataSchema, immutable: true },
   },
   {
     timestamps: true, // automatically add createdAt and updatedAt fields
-  }
+  },
 );
 
 // Pre-save hook: runs before saving a document
 userSchema.pre("save", async function (next) {
   // Only hash password if it was modified (e.g., new user or password change)
-  if (this.isModified("password")) {
-    this.password = await hashValue(this.password);
-    next();
+  if (!this.isModified("password")) {
+    return next();
   }
+
+  this.password = await hashValue(this.password);
+  next();
 });
 
 userSchema.methods.comparePassword = async function (candidate: string) {
   return await compareValue(candidate, this.password);
 };
-
-// Helper function to remove sensitive fields when converting to JSON/Object
-const removePassword = (_doc: any, ret: any) => {
-  delete ret.password;
-  delete ret.__v;
-  return ret;
-};
-
-userSchema.set("toJSON", { transform: removePassword });
-userSchema.set("toObject", { transform: removePassword });
 
 const UserModel = mongoose.model<User, UserModel>("User", userSchema);
 

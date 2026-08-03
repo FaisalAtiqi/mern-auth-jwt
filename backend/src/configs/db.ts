@@ -1,5 +1,9 @@
 import mongoose from "mongoose";
 import { MONGO_URI } from "../constants/env.js";
+import { mongooseSerializePlugin } from "../plugins/mongooseSerialize.plugin.js";
+
+// Register globally BEFORE loading or compiling any models
+mongoose.plugin(mongooseSerializePlugin);
 
 async function connectToDatabase() {
   try {

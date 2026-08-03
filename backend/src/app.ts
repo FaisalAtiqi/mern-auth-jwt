@@ -7,15 +7,21 @@ import authenticate from "./middlewares/authenticate.js";
 import sessionRoutes from "./routes/session.route.js";
 import cors from "cors";
 import { corsOptions } from "./configs/cors.js";
+import clientHintsMiddleware from "./middlewares/clientHints.js";
+import trackSession from "./middlewares/trackSession.js";
 
 const app = express();
 
-app.use(cors(corsOptions));
 // Security: Identify real user IPs behind proxies (Vercel, Render, AWS)
 app.set("trust proxy", 1);
 
+// Global Security/Standard Middlewares
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(cookieParser());
+
+// Header-related Middlewares
+app.use(clientHintsMiddleware);
 
 // Health Check
 app.get("/", (req, res) => {
@@ -26,8 +32,8 @@ app.get("/", (req, res) => {
 app.use("/api/auth", authRoutes);
 
 // Protected Routes
-app.use("/api/user", authenticate, userRoutes);
-app.use("/api/sessions", authenticate, sessionRoutes);
+app.use("/api/user", authenticate, trackSession, userRoutes);
+app.use("/api/sessions", authenticate, trackSession, sessionRoutes);
 
 // Global Error Handler
 app.use(errorHandler);

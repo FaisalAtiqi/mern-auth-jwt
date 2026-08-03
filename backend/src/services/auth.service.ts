@@ -17,24 +17,35 @@ import {
   getVerifyEmailTemplate,
 } from "../utils/emailTemplate.js";
 import {
-  LoginParams,
-  RegisterParams,
+  CreateUserAccountParams,
+  LoginUserParams,
   ResetPasswordParams,
-} from "../../../shared/auth.schema.js";
+} from "../types/auth.types.js";
+import {
+  buildSessionMetadata,
+  buildSignupMetadata,
+} from "../lib/metadata/client-metadata.js";
 
 /**
  * Creates a new user account, generates a verification token,
  * and initiates an authenticated session.
  */
-export async function createUserAccount(request: RegisterParams) {
-  const { email, password, userAgent } = request;
+export async function createUserAccount({
+  credentials,
+  metadata,
+}: CreateUserAccountParams) {
+  const { email, password } = credentials;
 
   // Ensure unique identity by checking for existing email records
   const userExist = await UserModel.exists({ email });
   appAssert(!userExist, HTTP_STATUS.CONFLICT, "Email is already registered.");
 
   // New user to the database
-  const user = await UserModel.create({ email, password, userAgent });
+  const user = await UserModel.create({
+    email,
+    password,
+    signupMetadata: buildSignupMetadata(metadata),
+  });
   const userId = user._id.toString();
 
   // Generate a one-time verification token for email validation
@@ -55,7 +66,12 @@ export async function createUserAccount(request: RegisterParams) {
   if (error) console.error("Registration email failed to send:", { error });
 
   // Create an active session and issue JWTs for immediate authentication
-  const session = await SessionModel.create({ userId, userAgent });
+
+  const sessionMetadata = buildSessionMetadata(metadata);
+  const session = await SessionModel.create({
+    userId,
+    ...sessionMetadata,
+  });
   const sessionId = session._id.toString();
 
   const accessToken = signToken("accessToken", { userId, sessionId });
@@ -97,7 +113,7 @@ export async function verifyEmail(code: string) {
 
   const verifiedUser = await UserModel.findByIdAndUpdate(
     verificationCodeDocument.userId,
-    { verified: true },
+    { isVerified: true },
     { new: true },
   );
   appAssert(verifiedUser, HTTP_STATUS.NOT_FOUND, "User not found");
@@ -123,7 +139,7 @@ export async function sendEmailVerification(email: string) {
 
   // Prevent resending verification links to already verified accounts
   appAssert(
-    !user.verified,
+    !user.isVerified,
     HTTP_STATUS.OK,
     "If an account exists and requires verification, you'll receive a link shortly.",
   );
@@ -162,8 +178,8 @@ export async function sendEmailVerification(email: string) {
 /**
  * Authenticates a user's identity and creates a persistent session record.
  */
-export async function loginUser(request: LoginParams) {
-  const { email, password, userAgent } = request;
+export async function loginUser({ credentials, metadata }: LoginUserParams) {
+  const { email, password } = credentials;
 
   // Locate user and explicitly select the sensitive password field for comparison
   const user = await UserModel.findOne({ email }).select("+password");
@@ -176,7 +192,8 @@ export async function loginUser(request: LoginParams) {
   const userId = user._id.toString();
 
   // Establish a new session to track the user's login state and device
-  const session = await SessionModel.create({ userId, userAgent });
+  const sessionMetadata = buildSessionMetadata(metadata);
+  const session = await SessionModel.create({ userId, ...sessionMetadata });
   const sessionId = session._id.toString();
 
   // Generate tokens to facilitate subsequent authenticated requests

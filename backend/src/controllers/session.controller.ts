@@ -6,29 +6,27 @@ import { verificationCodeSchema } from "../../../shared/auth.schema.js";
 import { clearAuthCookies } from "../utils/cookies.js";
 
 export async function getSessionsHandler(req: Request, res: Response) {
+  // `find()` always returns an array, and returning an empty array is valid
+  // because the user may simply have no active sessions
   const sessions = await SessionModel.find({
     userId: req.userId,
     // Optional: only show sessions that haven't expired
     expiresAt: { $gt: new Date() },
   }).sort({ createdAt: -1 }); // descending order
 
-  appAssert(sessions, HTTP_STATUS.NOT_FOUND, "Session not found");
-
-  // Map through sessions to add 'currentSession' only if it matches.
   const sessionList = sessions.map((session) => {
-    // We use .toObject() to convert Mongoose's document a plain JS object.
-    const sessionObj = session.toObject();
-
     return {
-      ...sessionObj,
-      // Only add the property if the ID matches the one in the request
-      ...(sessionObj._id.toString() === req.sessionId && {
-        currentSession: true,
-      }),
+      ...session.toObject(),
+      isCurrent: session.id === req.sessionId,
     };
   });
 
-  return res.status(HTTP_STATUS.OK).json(sessionList);
+  const payload = {
+    sessions: sessionList,
+    total: sessionList.length,
+  };
+
+  return res.status(HTTP_STATUS.OK).json(payload);
 }
 
 export async function deleteSessionHandler(req: Request, res: Response) {
@@ -52,5 +50,17 @@ export async function deleteSessionHandler(req: Request, res: Response) {
   // Otherwise, just confirm the remote device was logged out
   return res.status(HTTP_STATUS.OK).json({
     message: "Device logged out successfully.",
+  });
+}
+
+export async function deleteOtherSessionsHandler(req: Request, res: Response) {
+  const deletedSessions = await SessionModel.deleteMany({
+    _id: { $ne: req.sessionId },
+    userId: req.userId,
+  });
+  appAssert(deletedSessions, HTTP_STATUS.NOT_FOUND, "Sessions not found");
+
+  return res.status(HTTP_STATUS.OK).json({
+    message: "All other devices logged out successfully.",
   });
 }
