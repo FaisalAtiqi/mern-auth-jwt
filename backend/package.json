@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "license": "ISC",
-  "author": "withbirdee",
+  "author": "",
   "type": "module",
   "main": "dist/backend/src/server.js",
   "scripts": {
