@@ -1,3 +1,13 @@
+export interface SignupMetadata {
+  userAgent?: string;
+  ipAddress?: string;
+
+  location?: LocationMetadata;
+  browser?: BrowserMetadata;
+  os?: OSMetadata;
+  device?: DeviceMetadata;
+}
+
 export interface BrowserMetadata {
   name?: string;
   version?: string;
@@ -19,14 +29,4 @@ export interface LocationMetadata {
   region?: string;
   city?: string;
   timezone?: string;
-}
-
-export interface SignupMetadata {
-  userAgent?: string;
-  ipAddress?: string;
-
-  location?: LocationMetadata;
-  browser?: BrowserMetadata;
-  os?: OSMetadata;
-  device?: DeviceMetadata;
 }
