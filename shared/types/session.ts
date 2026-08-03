@@ -1,9 +1,9 @@
-export interface SessionsResponse {
-  sessions: UserSession[];
+export interface GetSessionsResponse {
+  sessions: Session[];
   total: number;
 }
 
-export interface UserSession {
+export interface Session {
   id: string;
   userAgent?: string;
   ipAddress?: string;
@@ -30,4 +30,12 @@ export interface UserSession {
   lastActive: string;
   createdAt: string;
   isCurrent: boolean;
+}
+
+export interface DeleteSessionResponse {
+  message: string;
+}
+
+export interface DeleteAllResponse {
+  message: string;
 }

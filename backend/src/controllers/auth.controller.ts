@@ -5,7 +5,7 @@ import {
   emailSchema,
   verificationCodeSchema,
   resetPasswordSchema,
-} from "../../../shared/auth.schema.js";
+} from "../../../shared/auth/auth.schema.js";
 import {
   createUserAccount,
   loginUser,
@@ -21,11 +21,23 @@ import { verifyToken } from "../utils/jwt.js";
 import appAssert from "../utils/appAssert.js";
 import SessionModel from "../models/session.model.js";
 import { extractClientMetadata } from "../lib/metadata/client-metadata.js";
+import {
+  LoginResponse,
+  LogoutResponse,
+  RegisterResponse,
+  RequestVerificationEmailResponse,
+  ResetPasswordResponse,
+  SendPasswordResetResponse,
+  VerifyEmailResponse,
+} from "../../../shared/auth/auth.types.js";
 
 /**
  * Handles user registration and initializes a secure session.
  */
-export async function registerHandler(req: Request, res: Response) {
+export async function registerHandler(
+  req: Request,
+  res: Response,
+): Promise<Response<RegisterResponse>> {
   // Validate input and capture client device metadata
   const credentials = registerSchema.parse(req.body);
   const metadata = extractClientMetadata(req);
@@ -44,7 +56,10 @@ export async function registerHandler(req: Request, res: Response) {
 /**
  * Consumes a verification code to verify the user's account.
  */
-export async function verifyEmailHandler(req: Request, res: Response) {
+export async function verifyEmailHandler(
+  req: Request,
+  res: Response,
+): Promise<Response<VerifyEmailResponse>> {
   // Validate that the URL parameter is a correctly formatted verification token
   const validCode = verificationCodeSchema.parse(req.params.code);
 
@@ -61,7 +76,7 @@ export async function verifyEmailHandler(req: Request, res: Response) {
 export async function requestEmailVerificationHandler(
   req: Request,
   res: Response,
-) {
+): Promise<Response<RequestVerificationEmailResponse>> {
   const email = emailSchema.parse(req.body.email);
 
   const { url } = await sendEmailVerification(email);
@@ -76,7 +91,10 @@ export async function requestEmailVerificationHandler(
 /**
  * Verifies credentials and establishes a new authenticated session.
  */
-export async function loginHandler(req: Request, res: Response) {
+export async function loginHandler(
+  req: Request,
+  res: Response,
+): Promise<Response<LoginResponse>> {
   const credentials = loginSchema.parse(req.body);
   const metadata = extractClientMetadata(req);
 
@@ -93,7 +111,10 @@ export async function loginHandler(req: Request, res: Response) {
 /**
  * Terminates the user session and clears authentication cookies.
  */
-export async function logoutHandler(req: Request, res: Response) {
+export async function logoutHandler(
+  req: Request,
+  res: Response,
+): Promise<Response<LogoutResponse>> {
   const accessToken = req.cookies.accessToken as string | undefined;
   const payload = verifyToken("accessToken", accessToken || "");
 
@@ -145,7 +166,10 @@ export async function refreshHandler(req: Request, res: Response) {
 /**
  * Initiates the password reset flow by sending a verification link to the user.
  */
-export async function sendPasswordResetHandler(req: Request, res: Response) {
+export async function sendPasswordResetHandler(
+  req: Request,
+  res: Response,
+): Promise<Response<SendPasswordResetResponse>> {
   const email = emailSchema.parse(req.body.email);
 
   const { url } = await sendPasswordResetEmail(email);
@@ -166,7 +190,10 @@ export async function sendPasswordResetHandler(req: Request, res: Response) {
 /**
  * Processes the completion of a password reset request.
  */
-export async function resetPasswordHandler(req: Request, res: Response) {
+export async function resetPasswordHandler(
+  req: Request,
+  res: Response,
+): Promise<Response<ResetPasswordResponse>> {
   // Validate the combined code and body data against the schema
   const request = resetPasswordSchema.parse(req.body);
 

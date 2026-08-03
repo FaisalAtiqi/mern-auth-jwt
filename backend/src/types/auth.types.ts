@@ -2,7 +2,7 @@ import {
   LoginBody,
   RegisterBody,
   ResetPasswordBody,
-} from "../../../shared/auth.schema.js";
+} from "../../../shared/auth/auth.schema.js";
 import { BaseClientMetadata } from "../lib/metadata/metadata.types.js";
 
 export interface CreateUserAccountParams {
