@@ -11,7 +11,7 @@ function GuestLayout() {
 
   // If the user is already logged in, redirect them to the home page.
   if (user) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Outlet />;

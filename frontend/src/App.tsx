@@ -11,19 +11,22 @@ import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import GuestLayout from "./layouts/GuestLayout";
 import ProtectedLayout from "./layouts/ProtectedLayout";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   return (
     <>
       <Routes>
+        <Route path="/" element={<Home />}></Route>
+
         {/* Protected app routes (requires auth) */}
         <Route path="/" element={<ProtectedLayout />}>
-          <Route index element={<Home />} />
+          <Route path="dashboard" element={<Dashboard />} />
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
         </Route>
 
-        {/* Guest-only routes (redirect to home if logged in) */}
+        {/* Guest-only routes (redirect to dashboard if logged in) */}
         <Route element={<GuestLayout />}>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />

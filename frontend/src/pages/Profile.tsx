@@ -1,6 +1,5 @@
-import { Alert, AlertTitle } from "@/components/ui/alert";
 import { useCurrentUser } from "@/providers/AuthProvider";
-import { AlertCircleIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 
 function Profile() {
   const { user } = useCurrentUser();
@@ -16,22 +15,31 @@ function Profile() {
   });
 
   return (
-    <div className="mt-20 flex flex-col items-center justify-center space-y-3">
-      <h1 className="text-3xl font-semibold">My Account</h1>
-      {!isVerified && (
-        <Alert variant="destructive" className="w-fit">
-          <AlertCircleIcon />
-          <AlertTitle>Please verify your email</AlertTitle>
-        </Alert>
-      )}
+    <div className="mx-auto max-w-5xl p-8">
+      <h1 className="text-2xl font-semibold">Account summary</h1>
 
-      <div className="space-y-2 text-center text-gray-200">
-        <p>
-          <span className="font-semibold">Email:</span> {email}
-        </p>
-        <p>
-          <span className="font-semibold">Created on:</span> {formattedDate}
-        </p>
+      <div className="mt-4 grid grid-cols-[150px_1fr] gap-y-2">
+        <span className="font-medium text-gray-500">Email:</span>
+        <span>{email}</span>
+
+        <span className="font-medium text-gray-500">Created on:</span>
+        <span>{formattedDate}</span>
+
+        <span className="font-medium text-gray-500">Email status:</span>
+        <span className={`${!isVerified ? "text-red-600" : "text-green-600"}`}>
+          {!isVerified ? "Not verified" : "Verified"}
+          <br />
+          <span>
+            {!isVerified && (
+              <Link
+                to="/email/verify/request"
+                className="text-sm text-blue-400 hover:underline"
+              >
+                Request verification email?
+              </Link>
+            )}
+          </span>
+        </span>
       </div>
     </div>
   );

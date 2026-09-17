@@ -1,4 +1,10 @@
-import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
+import {
+  LogOutIcon,
+  SettingsIcon,
+  UserIcon,
+  LayoutDashboard,
+  HomeIcon,
+} from "lucide-react";
 import {
   Avatar,
   AvatarBadge,
@@ -36,7 +42,7 @@ export function UserMenu({ user }: Props) {
     // onSettled runs regardless of success or failure
     onSettled: () => {
       clearAuthState(queryClient);
-      navigate("/login", { replace: true });
+      navigate("/", { replace: true });
     },
   });
 
@@ -70,6 +76,18 @@ export function UserMenu({ user }: Props) {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          <Link to="/dashboard">
+            <DropdownMenuItem>
+              <LayoutDashboard />
+              Dashboard
+            </DropdownMenuItem>
+          </Link>
+          <Link to="/">
+            <DropdownMenuItem>
+              <HomeIcon />
+              Home
+            </DropdownMenuItem>
+          </Link>
           <Link to="/profile">
             <DropdownMenuItem>
               <UserIcon />
