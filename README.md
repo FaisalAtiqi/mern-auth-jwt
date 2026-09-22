@@ -1,6 +1,8 @@
 # MERN Authentication Template (JWT)
 
-A full-stack authentication starter built with MongoDB, Express, React, Vite, TypeScript, and Shadcn/ui. This project includes secure JWT-based authentication, protected routes, email verification, password reset, session management, and a shared layer for reusable logic across the app.
+This is my first MERN stack project, created as a learning project to practice building a full-stack authentication system. It uses MongoDB, Express, React, Vite, TypeScript, shadcn/ui, JWT, and Resend.
+
+The project includes user registration, login, logout, protected routes, email verification, password reset, session management, and shared reusable logic between the frontend and backend.
 
 ## Features
 
