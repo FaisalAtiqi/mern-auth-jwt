@@ -1,6 +1,6 @@
 # MERN Authentication Template (JWT)
 
-A full-stack authentication starter built with MongoDB, Express, React, Vite, TypeScript, and shadcn/ui. This project includes secure JWT-based authentication, protected routes, email verification, password reset, session management, and a shared layer for reusable logic across the app.
+A full-stack authentication starter built with MongoDB, Express, React, Vite, TypeScript, and Shadcn/ui. This project includes secure JWT-based authentication, protected routes, email verification, password reset, session management, and a shared layer for reusable logic across the app.
 
 ## Features
 
@@ -18,7 +18,7 @@ A full-stack authentication starter built with MongoDB, Express, React, Vite, Ty
 
 ## Preview
 
-<img src="./Preview.png" alt="MERN App preview" />
+<img src="./preview.png" alt="MERN App preview" />
 
 ## Tech Stack
 
@@ -28,7 +28,7 @@ A full-stack authentication starter built with MongoDB, Express, React, Vite, Ty
 - Vite
 - TypeScript
 - Tailwind CSS
-- [shadcn/ui](https://ui.shadcn.com/)
+- [Shadcn/ui](https://ui.shadcn.com/)
 - React Router
 
 ### Backend
